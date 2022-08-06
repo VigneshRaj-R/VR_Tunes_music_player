@@ -1,21 +1,19 @@
 import 'dart:developer';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_player_app/screens/favourites_button.dart';
+import 'package:music_player_app/favourites/favourites_button.dart';
+import 'package:music_player_app/songstorage.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:rxdart/rxdart.dart';
 
 class NowPlaying extends StatefulWidget {
-  NowPlaying(
-      {Key? key,
-      required this.songModel,
-      required this.songs,
-      required this.index})
-      : super(key: key);
+  NowPlaying({
+    Key? key,
+    required this.songs,
+  }) : super(key: key);
 
-  final SongModel songModel;
   final List<SongModel> songs;
-
-  int index;
 
   @override
   State<NowPlaying> createState() => _NowPlayingState();
@@ -23,7 +21,7 @@ class NowPlaying extends StatefulWidget {
 
 AudioPlayer _audioPlayer = AudioPlayer();
 
-bool _isPlaying = false;
+bool _isPlaying = true;
 int currentindex = 0;
 
 class _NowPlayingState extends State<NowPlaying> {
@@ -32,29 +30,15 @@ class _NowPlayingState extends State<NowPlaying> {
 
   @override
   void initState() {
+    Songstorage.player.currentIndexStream.listen((index) {
+      if (index != null && mounted) {
+        setState(() {
+          currentindex = index;
+        });
+        Songstorage.currentIndexx = index;
+      }
+    });
     super.initState();
-    playSong();
-  }
-
-  void playSong() {
-    try {
-      _audioPlayer
-          .setAudioSource(AudioSource.uri(Uri.parse(widget.songModel.uri!)));
-      _audioPlayer.play();
-      _isPlaying = true;
-    } on Exception {
-      log("File not supported.");
-    }
-    _audioPlayer.durationStream.listen((d) {
-      setState(() {
-        _duration = d!;
-      });
-    });
-    _audioPlayer.positionStream.listen((p) {
-      setState(() {
-        _position = p;
-      });
-    });
   }
 
   @override
@@ -88,7 +72,7 @@ class _NowPlayingState extends State<NowPlaying> {
                               const Icon(Icons.arrow_drop_down_circle_outlined),
                           color: Colors.white,
                         ),
-                        FavoriteBut(song: widget.songModel)
+                        FavoriteBut(song: widget.songs[currentindex])
                       ],
                     ),
                     Container(
@@ -105,7 +89,7 @@ class _NowPlayingState extends State<NowPlaying> {
                             Icons.image_not_supported_rounded,
                             size: 100,
                           ),
-                          id: widget.songModel.id,
+                          id: widget.songs[currentindex].id,
                           type: ArtworkType.AUDIO),
                     ),
                     SingleChildScrollView(
@@ -113,7 +97,7 @@ class _NowPlayingState extends State<NowPlaying> {
                       child: Padding(
                         padding: const EdgeInsets.only(top: 50),
                         child: Text(
-                          widget.songModel.displayNameWOExt,
+                          widget.songs[currentindex].displayNameWOExt,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
@@ -127,9 +111,10 @@ class _NowPlayingState extends State<NowPlaying> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Text(
-                        widget.songModel.artist.toString() == '<unknown>'
+                        widget.songs[currentindex].artist.toString() ==
+                                '<unknown>'
                             ? 'Unknown Artist'
-                            : widget.songModel.artist.toString(),
+                            : widget.songs[currentindex].artist.toString(),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: const TextStyle(
@@ -141,35 +126,43 @@ class _NowPlayingState extends State<NowPlaying> {
                     Container(
                       height: 120.0,
                     ),
-                    Row(
-                      children: [
-                        Text(_position.toString().split(".")[0]),
-                        Expanded(
-                          child: Slider(
-                              min: const Duration(microseconds: 0)
-                                  .inSeconds
-                                  .toDouble(),
-                              value: _position.inSeconds.toDouble(),
-                              max: _duration.inSeconds.toDouble(),
-                              onChanged: (value) {
-                                changeToSeconds(value.toInt());
-                                value = value;
-                              }),
-                        ),
-                        Text(_duration.toString().split(".")[0]),
-                      ],
-                    ),
+                    StreamBuilder<DurationState>(
+                        stream: _durationStateStream,
+                        builder: (context, snapshot) {
+                          final durationState = snapshot.data;
+                          final progress =
+                              durationState?.position ?? Duration.zero;
+                          final total = durationState?.total ?? Duration.zero;
+                          return ProgressBar(
+                              timeLabelTextStyle: const TextStyle(
+                                  color: Color.fromARGB(255, 6, 52, 121),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15),
+                              progress: progress,
+                              total: total,
+                              barHeight: 5.0,
+                              thumbRadius: 7,
+                              progressBarColor: Colors.white,
+                              thumbColor: Colors.white,
+                              baseBarColor: Colors.yellow[400],
+                              bufferedBarColor: Colors.yellow[400],
+                              buffered: const Duration(milliseconds: 2000),
+                              onSeek: (duration) {
+                                Songstorage.player.seek(duration);
+                              });
+                        }),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         IconButton(
                           onPressed: () {
-                            if (_audioPlayer.hasPrevious) {
-                              _audioPlayer.seekToPrevious();
+                            if (Songstorage.player.hasPrevious) {
+                              Songstorage.player.seekToPrevious();
+                              Songstorage.player.play();
                             } else {
-                              playSong();
+                              Songstorage.player.play();
                             }
-                            playSong();
+                            Songstorage.player.play();
                           },
                           icon: const Icon(
                             Icons.skip_previous,
@@ -181,9 +174,9 @@ class _NowPlayingState extends State<NowPlaying> {
                           onPressed: () {
                             setState(() {
                               if (_isPlaying) {
-                                _audioPlayer.pause();
+                                Songstorage.player.pause();
                               } else {
-                                _audioPlayer.play();
+                                Songstorage.player.play();
                               }
                               _isPlaying = !_isPlaying;
                             });
@@ -196,20 +189,12 @@ class _NowPlayingState extends State<NowPlaying> {
                         ),
                         IconButton(
                           onPressed: () {
-                            // setState(() {
-                            //   if (_audioPlayer.hasNext) {
-                            //     _audioPlayer.seekToNext();
-                            //     playSong();
-                            //   } else {
-                            //     playSong();
-                            //   }
-                            // });
                             {
-                              if (_audioPlayer.hasNext) {
-                                _audioPlayer.seekToNext();
-                                playSong();
+                              if (Songstorage.player.hasNext) {
+                                Songstorage.player.seekToNext();
+                                Songstorage.player.play();
                               } else {
-                                playSong();
+                                Songstorage.player.play();
                               }
                             }
                           },
@@ -233,4 +218,16 @@ class _NowPlayingState extends State<NowPlaying> {
     Duration duration = Duration(seconds: seconds);
     _audioPlayer.seek(duration);
   }
+
+  Stream<DurationState> get _durationStateStream =>
+      Rx.combineLatest2<Duration, Duration?, DurationState>(
+          Songstorage.player.positionStream,
+          Songstorage.player.durationStream,
+          (position, duration) => DurationState(
+              position: position, total: duration ?? Duration.zero));
+}
+
+class DurationState {
+  DurationState({this.position = Duration.zero, this.total = Duration.zero});
+  Duration position, total;
 }

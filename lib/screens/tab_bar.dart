@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:music_player_app/playlist/playlist_functions.dart';
+import 'package:music_player_app/playlist/playlist_screen.dart';
 import 'package:music_player_app/screens/albums_screen.dart';
 import 'package:music_player_app/screens/folder_screen.dart';
-import 'package:music_player_app/screens/playlist.dart';
 import 'package:music_player_app/screens/song_page.dart';
-import 'package:music_player_app/searchpage.dart';
+import 'package:music_player_app/screens/searchpage.dart';
+import 'package:share_plus/share_plus.dart';
 
 class TabBarPage extends StatefulWidget {
   const TabBarPage({Key? key}) : super(key: key);
@@ -38,58 +40,226 @@ class _TabBarPageState extends State<TabBarPage>
       child: Scaffold(
         key: _key,
         drawer: Drawer(
-          backgroundColor: const Color.fromARGB(255, 2, 0, 10),
-          child: Column(
-            children: [
-              Image.asset('assets/image/beach-morning-minimal-art-4k-dp.jpg'),
-              const SizedBox(
-                height: 50,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.settings,
-                      size: 20,
-                      color: Colors.white,
+          child: Container(
+            color: Colors.grey[900],
+            child: CustomScrollView(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: Colors.transparent,
+                  automaticallyImplyLeading: false,
+                  elevation: 0,
+                  stretch: true,
+                  expandedHeight: MediaQuery.of(context).size.height * 0.2,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: RichText(
+                      text: const TextSpan(
+                        text: 'VR Tunes',
+                        style: TextStyle(
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: 'v0.0.1',
+                            style: TextStyle(
+                                fontSize: 7.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.end,
                     ),
-                    SizedBox(
-                      width: 30,
+                    titlePadding: const EdgeInsets.only(bottom: 40),
+                    centerTitle: true,
+                    background: ShaderMask(
+                      shaderCallback: (rect) {
+                        return LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.black.withOpacity(0.1),
+                          ],
+                        ).createShader(
+                            Rect.fromLTRB(0, 0, rect.width, rect.height));
+                      },
+                      blendMode: BlendMode.dstIn,
                     ),
-                    Text(
-                      'Settings',
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.ac_unit_outlined,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    Text(
-                      'About',
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                    ),
-                  ],
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      ListTile(
+                        title: const Text('Home'),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading: const Icon(Icons.home_rounded),
+                        selected: true,
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('About App',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading:
+                            const Icon(Icons.info_rounded, color: Colors.white),
+                        onTap: () {
+                          showAboutDialog(
+                              context: context,
+                              applicationName: 'VR Tunes Music Player',
+                              applicationVersion: '0.0.1',
+                              applicationIcon: Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: const BoxDecoration(
+                                    image: DecorationImage(
+                                      image:
+                                          AssetImage('assets/image/Logo.png'),
+                                      fit: BoxFit.fill,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  )),
+                              applicationLegalese:
+                                  '© 2020-2021 All rights reserved.',
+                              children: [
+                                const Text(' Beats is a music player app '
+                                    'that plays music from your device.'),
+                                const Text(
+                                  'This app is made with ❤️ by Vignesh',
+                                ),
+                              ]);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('Share App',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading: const Icon(Icons.share_rounded,
+                            color: Colors.white),
+                        onTap: () {
+                          Share.share(
+                              'https://play.google.com/store/apps/details?id=com.beats.beats');
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('Feedback',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading: const Icon(Icons.feedback_rounded,
+                            color: Colors.white),
+                        onTap: () {
+                          // mailToMe();
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('Reset App',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading: const Icon(Icons.restore_rounded,
+                            color: Colors.white),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Reset App"),
+                                  content: const Text(
+                                      "Are you sure wnat to reset the app?"),
+                                  actions: [
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text("cancel")),
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          appReset(context);
+                                        },
+                                        child: const Text("Reset"))
+                                  ],
+                                );
+                              });
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('About Developer',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading: const Icon(Icons.person, color: Colors.white),
+                        onTap: () {
+                          showAboutDialog(context: context);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('Rate this App',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20.0),
+                        leading: const Icon(Icons.star_border_outlined,
+                            color: Colors.white),
+                        onTap: () {
+                          // ratingApp();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-            ],
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    children: <Widget>[
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 30, 5, 20),
+                        child: Center(
+                          child: Column(
+                            children: const [
+                              Text(
+                                'made with ❤️ by Vignesh',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.white),
+                              ),
+                              Text(
+                                '0.0.1',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         backgroundColor: Colors.transparent,
@@ -120,7 +290,7 @@ class _TabBarPageState extends State<TabBarPage>
                               builder: ((context) => StreamBuilder<Object>(
                                   stream: null,
                                   builder: (context, snapshot) {
-                                    return  SearchScreen();
+                                    return SearchScreen();
                                   }))));
                         }),
                         icon: const Icon(

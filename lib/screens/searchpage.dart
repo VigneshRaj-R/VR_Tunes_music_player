@@ -84,8 +84,7 @@ class SearchScreen extends StatelessWidget {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (ctx) => NowPlaying(
                                     songs: SongsScreen.songs,
-                                    songModel: data,
-                                    index: index,
+                                   
                                   )));
                         });
                   }),

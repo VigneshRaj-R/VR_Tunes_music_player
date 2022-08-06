@@ -2,9 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_player_app/screens/favourite_database.dart';
-import 'package:music_player_app/screens/favourites_button.dart';
+import 'package:music_player_app/favourites/favourite_database.dart';
+import 'package:music_player_app/favourites/favourites_button.dart';
 import 'package:music_player_app/screens/nowplaying.dart';
+import 'package:music_player_app/songstorage.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -28,16 +29,6 @@ class _SongsScreenState extends State<SongsScreen> {
   }
 
   final _audioQuery = OnAudioQuery();
-  final AudioPlayer _audioPlayer = AudioPlayer();
-
-  playSong(String? uri) {
-    try {
-      _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri!)));
-      _audioPlayer.play();
-    } on Exception {
-      log("Error parsing song!");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +71,7 @@ class _SongsScreenState extends State<SongsScreen> {
                   if (!FavoriteDB.isInitialized) {
                     FavoriteDB.initialise(item.data!);
                   }
+                  Songstorage.songCopy = item.data!;
 
                   return ListView.separated(
                       shrinkWrap: true,
@@ -88,11 +80,14 @@ class _SongsScreenState extends State<SongsScreen> {
                       itemBuilder: (ctx, index) {
                         return ListTile(
                             onTap: (() {
+                              Songstorage.player.setAudioSource(
+                                  Songstorage.createSongList(item.data!),
+                                  initialIndex: index);
+                              Songstorage.player.play();
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => NowPlaying(
-                                      songModel: item.data![index],
-                                      songs: item.data!,
-                                      index: index)));
+                                        songs: item.data!,
+                                      )));
                             }),
                             leading: const Icon(
                               Icons.music_note,
@@ -114,9 +109,7 @@ class _SongsScreenState extends State<SongsScreen> {
                                   fontWeight: FontWeight.bold),
                             ),
                             trailing:
-                                //  const Icon(Icons.more_vert_rounded,
-                                //     color: Colors.white),
-                                FavoriteBut(song: item.data![index]));
+                                FavoriteBut(song: SongsScreen.songs[index]));
                       },
                       separatorBuilder: (ctx, index) {
                         return const Divider();

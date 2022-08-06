@@ -43,6 +43,10 @@ dependencies:
   audio_video_progress_bar: ^0.10.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  url_launcher: ^6.1.5
+  share_plus: ^4.0.10
+  rxdart: ^0.27.5
+  
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +75,7 @@ flutter:
   assets:
     - assets/image/beach-morning-minimal-art-4k-dp.jpg
     - assets/image/pngtree-3d-purple-head-mounted-eh-set-png-image_2187586-removebg-preview.png
+    - assets/image/Logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
