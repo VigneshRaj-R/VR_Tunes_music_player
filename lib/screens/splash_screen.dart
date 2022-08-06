@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_player_app/screens/home_screen.dart';
+import 'package:music_player_app/screens/tab_bar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -23,9 +23,9 @@ class _SplashScreenState extends State<SplashScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-            Color.fromARGB(255, 39, 8, 212),
-            Color.fromARGB(255, 39, 8, 212),
-            Colors.white
+           Color.fromARGB(255, 8, 0, 11),
+            Color.fromARGB(255, 16, 3, 89),
+            Color.fromARGB(255, 103, 24, 46)
           ])),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
-                      color: Color.fromARGB(255, 62, 61, 61)),
+                      color: Color.fromARGB(255, 6, 240, 240)),
                 ),
               ],
             ),
@@ -83,7 +83,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> gotohome() async {
     await Future.delayed(const Duration(seconds: 3));
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (ctx) => const HomeScreen()));
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (ctx) => const TabBarPage()));
   }
 }
