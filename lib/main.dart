@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:music_player_app/playlist/playlist_model.dart';
-import 'package:music_player_app/screens/splash_screen.dart';
+import 'package:music_player_app/core/provider/favoutrites_db.dart';
+import 'package:music_player_app/core/model/playlist_model.dart';
+import 'package:music_player_app/core/provider/playlist_addsong.dart';
+import 'package:music_player_app/core/provider/provider_nowplaying.dart';
+import 'package:music_player_app/core/provider/provider_permission.dart';
+import 'package:music_player_app/core/provider/provider_playllist.dart';
+import 'package:music_player_app/ui/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 String favouritesBox = "favourites_box";
 
@@ -22,12 +28,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
-      theme: ThemeData(
-        fontFamily: 'Schyler',
-        primaryColor: Colors.white,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: ((context) => PlaylistProvider())),
+        ChangeNotifierProvider(create: ((context) => PermissionProvider())),
+        ChangeNotifierProvider(create: ((context) => ProviderNowplaying())),
+        ChangeNotifierProvider(create: ((context) => ProviderNowplaying())),
+        ChangeNotifierProvider(create: ((context) => FavoriteDB())),
+        ChangeNotifierProvider(create: ((context) => PlayListDb())),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: const SplashScreen(),
+        theme: ThemeData(
+          fontFamily: 'Schyler',
+          primaryColor: Colors.white,
+        ),
       ),
     );
   }

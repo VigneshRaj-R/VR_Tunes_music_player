@@ -1,32 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:music_player_app/screens/tab_bar.dart';
+import 'package:music_player_app/ui/screens/tab_bar.dart';
+import 'package:music_player_app/ui/widgets/common_color.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    gotohome();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-           Color.fromARGB(255, 8, 0, 11),
-            Color.fromARGB(255, 16, 3, 89),
-            Color.fromARGB(255, 103, 24, 46)
-          ])),
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      gotohome(context);
+    });
+    return CommonColor(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Padding(
@@ -81,10 +65,9 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  Future<void> gotohome() async {
+  Future<void> gotohome(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 3));
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (ctx) => const TabBarPage()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (ctx) => TabBarPage()));
   }
 }

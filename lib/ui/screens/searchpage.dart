@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:music_player_app/screens/nowplaying.dart';
-import 'package:music_player_app/screens/song_page.dart';
+import 'package:music_player_app/ui/screens/nowplaying.dart';
+import 'package:music_player_app/ui/screens/song_page.dart';
+import 'package:music_player_app/ui/widgets/common_color.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 // ignore: must_be_immutable
@@ -11,16 +12,7 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-            Color.fromARGB(255, 8, 0, 11),
-            Color.fromARGB(255, 16, 3, 89),
-            Color.fromARGB(255, 103, 24, 46)
-          ])),
+    return CommonColor(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -38,7 +30,7 @@ class SearchScreen extends StatelessWidget {
                     suffixIcon: IconButton(
                         onPressed: () {
                           controller10.clear();
-
+    
                           temp.value.clear();
                           temp.notifyListeners();
                         },

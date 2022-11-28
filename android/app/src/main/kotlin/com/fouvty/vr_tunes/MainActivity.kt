@@ -1,4 +1,4 @@
-package com.example.music_player_app
+package com.fouvty.vr_tunes
 
 import io.flutter.embedding.android.FlutterActivity
 

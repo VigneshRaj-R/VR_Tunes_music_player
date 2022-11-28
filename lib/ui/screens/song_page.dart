@@ -1,37 +1,27 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:music_player_app/favourites/favourite_database.dart';
-import 'package:music_player_app/favourites/favourites_button.dart';
-import 'package:music_player_app/screens/nowplaying.dart';
-import 'package:music_player_app/songstorage.dart';
+import 'package:music_player_app/controller/favourite_database.dart';
+import 'package:music_player_app/core/provider/favoutrites_db.dart';
+import 'package:music_player_app/core/provider/provider_permission.dart';
+import 'package:music_player_app/ui/screens/favourites_button.dart';
+import 'package:music_player_app/ui/screens/nowplaying.dart';
+import 'package:music_player_app/ui/widgets/songstorage.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
-class SongsScreen extends StatefulWidget {
-  const SongsScreen({Key? key}) : super(key: key);
+class SongsScreen extends StatelessWidget {
+  SongsScreen({Key? key}) : super(key: key);
   static List<SongModel> songs = [];
-
-  @override
-  State<SongsScreen> createState() => _SongsScreenState();
-}
-
-class _SongsScreenState extends State<SongsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    requestPermission();
-  }
-
-  void requestPermission() {
-    Permission.storage.request();
-  }
 
   final _audioQuery = OnAudioQuery();
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<PermissionProvider>(context, listen: false)
+          .requestPermission();
+    });
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(

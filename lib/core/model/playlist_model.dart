@@ -1,8 +1,7 @@
 import 'package:hive_flutter/adapters.dart';
-part 'playlist_database.g.dart';
+part 'playlist_model.g.dart';
 @HiveType(typeId: 1)
 class MusicModel extends HiveObject {
-  
 
   @HiveField(0)
   String name;
@@ -15,6 +14,7 @@ class MusicModel extends HiveObject {
   add(int id) async {
     songData.add(id);
     save();
+    
   }
 
   deleteData(int id) {

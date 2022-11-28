@@ -1,18 +1,18 @@
-
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class FavoriteDB {
+class FavoriteDB extends ChangeNotifier {
   static bool isInitialized = false;
   static final musicDb = Hive.box<int>('favoriteDB');
-  static ValueNotifier<List<SongModel>> favoriteSongs = ValueNotifier([]);
+  // static ValueNotifier<List<SongModel>> favoriteSongs = ValueNotifier([]);
 
+  static List<SongModel> favoriteSongs = [];
   static initialise(List<SongModel> songs) {
     for (SongModel song in songs) {
       if (isfavor(song)) {
-        favoriteSongs.value.add(song);
+        favoriteSongs.add(song);
       }
     }
     isInitialized = true;
@@ -28,8 +28,8 @@ class FavoriteDB {
 
   static add(SongModel song) async {
     musicDb.add(song.id);
-    favoriteSongs.value.add(song);
-    FavoriteDB.favoriteSongs.notifyListeners();
+    favoriteSongs.add(song);
+    // FavoriteDB.favoriteSongs.notifyListeners();
   }
 
   static delete(int id) async {
@@ -44,6 +44,6 @@ class FavoriteDB {
       }
     });
     musicDb.delete(deletekey);
-    favoriteSongs.value.removeWhere((song) => song.id == id);
+    favoriteSongs.removeWhere((song) => song.id == id);
   }
 }
